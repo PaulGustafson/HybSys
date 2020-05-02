@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) 2020 Paul Gustafson - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
+
+
 #include "HybSys.h"
 
 using namespace std;
