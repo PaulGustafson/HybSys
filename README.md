@@ -1,3 +1,3 @@
 # HybSys
 
-Implementation of Culbertson, J., Gustafson, P., Koditschek, D. E., & Stiller, P. F. (2019). [Formal composition of hybrid systems](https://arxiv.org/abs/1911.01267). arXiv preprint arXiv:1911.01267.
+Implementation of [Formal composition of hybrid systems](https://arxiv.org/abs/1911.01267) - Culbertson, Gustafson, Koditschek,  Stiller. (2019).
