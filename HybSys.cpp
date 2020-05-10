@@ -17,7 +17,7 @@ template <typename T> vector<T> concat(vector<T> &a, vector<T> &b) {
     return ret;
 }
 
-Mode::Mode(int dim, function<vector<double>(vector<double)> vectorField) {
+Mode::Mode(int dim, function<vector<double>(vector<double>)> vectorField) {
   this->dim = dim;
   this->vectorField = vectorField;  
 }
@@ -118,4 +118,13 @@ HybSys HybSys::parallel(HybSys H, HybSys K) {
     }
   }
   return HybSys(modes, resets);
+}
+
+Mode::Mode() {
+}
+
+Reset::Reset() {
+}
+
+HybSys::HybSys() {
 }

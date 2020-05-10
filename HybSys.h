@@ -4,11 +4,13 @@
  * Proprietary and confidential
  */
 
+
 #ifndef HybSys_h
 #define HybSys_h
 
 #include <stdint.h>
 #include <vector>
+#include <functional>
 
 using namespace std;
 
@@ -18,8 +20,10 @@ class Mode {
   function<vector<double>(vector<double>)> vectorField;
   
   Mode(int dim, function<vector<double>(vector<double>)> vectorField);
-    
+  Mode();
+  
   static Mode parallel(Mode M, Mode N);
+  
 };
 
 
@@ -30,6 +34,7 @@ class Reset {
   
   Reset(function<bool(vector<double>)> guard,
 	function<vector<double>(vector<double>)> reset);
+  Reset();
 };
 
 class HybSys {
@@ -38,6 +43,7 @@ class HybSys {
   vector<vector<Reset>> resets;
   
   HybSys(vector<Mode> modes, vector<vector<Reset>> resets);
+  HybSys();
 
   static HybSys parallel(HybSys H, HybSys K);
 };
