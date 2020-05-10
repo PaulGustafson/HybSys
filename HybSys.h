@@ -22,7 +22,7 @@ class Mode {
   Mode(int dim, function<vector<double>(vector<double>)> vectorField);
   Mode();
   
-  static Mode parallel(Mode M, Mode N);
+  /* static Mode parallel(Mode M, Mode N); */
   
 };
 
@@ -45,7 +45,7 @@ class HybSys {
   HybSys(vector<Mode> modes, vector<vector<Reset>> resets);
   HybSys();
 
-  static HybSys parallel(HybSys H, HybSys K);
+  /* static HybSys parallel(HybSys H, HybSys K);  */
 };
 
 
