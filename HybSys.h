@@ -7,7 +7,6 @@
 
 #ifndef HybSys_h
 #define HybSys_h
-
 #include <stdint.h>
 #include <vector>
 #include <functional>
@@ -22,8 +21,7 @@ class Mode {
   Mode(int dim, function<vector<double>(vector<double>)> vectorField);
   Mode();
   
-  static Mode parallel(Mode M, Mode N);
-  
+  static Mode parallel(Mode M, Mode N);  
 };
 
 
@@ -46,5 +44,13 @@ class HybSys {
   HybSys();
 
   static HybSys parallel(HybSys H, HybSys K);
+
+  static HybSys sequential(HybSys H, HybSys K);
+
+  // Guards of inMode have higher priority than outMode
+  static HybSys loop(HybSys H, int outMode, int inMode);
 };
+
 #endif
+
+
