@@ -117,6 +117,57 @@ HybSys HybSys::parallel(HybSys H, HybSys K) {
   return HybSys(modes, resets);
 }
 
+/*
+ * Replace the final mode of H with the first mode of K
+ */
+HybSys HybSys::sequential(HybSys H, HybSys K) {
+  H.modes.pop_back();
+  vector<Mode> modes = concat(H.modes, K.modes);
+  vector<vector<Reset>> resets (H.modes.size() + K.modes.size() - 1);
+
+  for (int i = 0; i < resets.size(); i++) {
+    resets[i] = vector<Reset>  (H.modes.size() + K.modes.size() - 1);
+    if (i < H.modes.size() - 1) {
+      resets[i] = H.resets[i];
+    }
+    else { 
+      resets[i + H.modes.size() - 1] = K.resets[i - H.modes.size() + 1];
+    }
+  }
+  
+  return HybSys(modes, resets);  
+}
+
+Reset Reset::either(Reset r1, Reset r2) {
+  function<bool(vector<double>)> guard = [r1, r2](vector<double> x) {
+    return r1.guard(x) || r2.guard(x);
+  };
+  function<vector<double>(vector<double>)> reset = [r1, r2](vector<double> x) {
+    if (r1.guard(x)) {
+      return r1.reset(x);
+    }
+    return r2.reset(x);
+  };
+  return Reset(guard, reset);
+}
+
+/*
+ * Identify the final mode and the first mode.  Use the first mode's guards/resets
+ */
+HybSys HybSys::loop(HybSys H) {
+  H.modes.pop_back();
+  H.resets.pop_back();
+  int last = H.modes.size() - 1;
+
+  // If you would reset into the final mode, reset into the first mode instead
+  for (int i = 0; i < H.modes.size(); i++) {
+    H.resets[i][0] = Reset::either(H.resets[i][0], H.resets[i][last]);
+    H.resets[i].pop_back();
+  }
+  return H;
+}
+
+
 Mode::Mode() {
 }
 

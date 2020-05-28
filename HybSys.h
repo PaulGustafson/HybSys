@@ -32,6 +32,9 @@ class Reset {
   
   Reset(function<bool(vector<double>)> guard,
 	function<vector<double>(vector<double>)> reset);
+
+  static Reset either(Reset r1, Reset r2);
+  
   Reset();
 };
 
@@ -47,8 +50,8 @@ class HybSys {
 
   static HybSys sequential(HybSys H, HybSys K);
 
-  // Guards of inMode have higher priority than outMode
-  static HybSys loop(HybSys H, int outMode, int inMode);
+  static HybSys loop(HybSys H);
+
 };
 
 #endif
