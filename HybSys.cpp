@@ -1,7 +1,6 @@
 /*
- * Copyright (C) 2020 Paul Gustafson - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
+ * Copyright (C) 2020 Paul Gustafson
+ * License: MIT  (see the file LICENSE)
  */
 
 
