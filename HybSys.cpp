@@ -48,6 +48,19 @@ HybSys::HybSys(vector<Mode> modes, vector<vector<Reset>> resets) {
   this->resets = resets;
 }
 
+Semiconjugacy::Semiconjugacy(HybSys dom, HybSys cod, vector<int> nodeMap, vector<function<vector<double>(vector<double>)>> manifoldMap) {
+  this->dom = dom;
+  this->cod = cod;
+  this->nodeMap = nodeMap;
+  this->manifoldMap = manifoldMap;
+}
+
+TAPair::TAPair(HybSys anchor, HybSys temp, Semiconjugacy asymptoticPhase) { 
+  this->anchor = anchor;
+  this->temp = temp;
+  this->asymptoticPhase = asymptoticPhase;
+}
+
 
 HybSys HybSys::parallel(HybSys H, HybSys K) {
   vector<Mode> modes (H.modes.size() * K.modes.size());
@@ -166,7 +179,6 @@ HybSys HybSys::loop(HybSys H) {
   return H;
 }
 
-
 Mode::Mode() {
 }
 
@@ -175,3 +187,10 @@ Reset::Reset() {
 
 HybSys::HybSys() {
 }
+
+Semiconjugacy::Semiconjugacy() {
+}
+
+TAPair::TAPair() {
+}
+
