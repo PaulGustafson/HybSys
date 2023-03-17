@@ -52,6 +52,26 @@ class HybSys {
 
 };
 
+class Semiconjugacy {
+  public:
+    HybSys dom, cod;
+    vector<int> nodeMap;
+    vector<function<vector<double>(vector<double>)>> manifoldMap;
+
+    Semiconjugacy(HybSys dom, HybSys cod, vector<int> nodeMap, vector<function<vector<double>(vector<double>)>> manifoldMap);
+};
+
+
+class TAPair {
+ public:
+  HybSys anchor;
+  HybSys temp;
+
+  Semiconjugacy asymptoticPhase;
+
+  TAPair(HybSys anchor, HybSys temp, Semiconjugacy asymptoticPhase);
+};
+
 #endif
 
 
