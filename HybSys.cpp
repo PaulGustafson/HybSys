@@ -51,7 +51,7 @@ HybSys::HybSys(vector<Mode> modes, vector<vector<Reset>> resets) {
 Semiconjugacy::Semiconjugacy(HybSys dom, HybSys cod, vector<int> nodeMap, vector<function<vector<double>(vector<double>)>> manifoldMap) {
   this->dom = dom;
   this->cod = cod;
-  this->nodeMap = nodeMap;
+  this->modeMap = modeMap;
   this->manifoldMap = manifoldMap;
 }
 
