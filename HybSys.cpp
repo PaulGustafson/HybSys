@@ -5,9 +5,16 @@
 
 
 #include "HybSys.h"
+#include <Eigen/Dense>
 
 using namespace std;
 
+
+Eigen::VectorXd concatE(Eigen::VectorXd a, Eigen::VectorXd b) {
+    Eigen::VectorXd vec_joined(a.size() + b.size());
+    vec_joined << a, b;
+    return vec_joined;
+}
 
 template <typename T> vector<T> concat(vector<T> a, vector<T> b) {
     vector<T> ret = vector<T>();
@@ -16,29 +23,29 @@ template <typename T> vector<T> concat(vector<T> a, vector<T> b) {
     return ret;
 }
 
-Mode::Mode(int dim, function<vector<double>(vector<double>)> vectorField) {
+
+Mode::Mode(int dim, function<Eigen::VectorXd(Eigen::VectorXd)> vectorField) {
   this->dim = dim;
   this->vectorField = vectorField;  
 }
 
 
 Mode Mode::parallel(Mode M, Mode N) {
-  function<vector<double>(vector<double>)> vectorField = [&M, &N](vector<double> coords) {
-      vector<double> mCoords = vector<double>(coords.begin(), coords.begin() + M.dim);
-      vector<double> nCoords = vector<double>(coords.begin() + M.dim,
-					      coords.begin() + M.dim + N.dim);
+  function<Eigen::VectorXd(Eigen::VectorXd)> vectorField = [&M, &N](Eigen::VectorXd coords) {
+      Eigen::VectorXd mCoords = Eigen::VectorXd(0, M.dim);
+      Eigen::VectorXd nCoords = Eigen::VectorXd(M.dim, M.dim + N.dim);
     
-      vector<double> mAns = M.vectorField(mCoords);
-      vector<double> nAns = N.vectorField(nCoords);
+      Eigen::VectorXd mAns = M.vectorField(mCoords);
+      Eigen::VectorXd nAns = N.vectorField(nCoords);
     
-      return concat(mAns, nAns);
+      return concatE(mAns, nAns);
     };
 
   return Mode(M.dim + N.dim, vectorField);
 }
 
-Reset::Reset(function<bool(vector<double>)> guard,
-	     function<vector<double>(vector<double>)> reset) {
+Reset::Reset(function<bool(Eigen::VectorXd)> guard,
+	     function<Eigen::VectorXd(Eigen::VectorXd)> reset) {
   this->guard = guard;
   this->reset = reset;
 }
@@ -48,7 +55,7 @@ HybSys::HybSys(vector<Mode> modes, vector<vector<Reset>> resets) {
   this->resets = resets;
 }
 
-Semiconjugacy::Semiconjugacy(HybSys dom, HybSys cod, vector<int> nodeMap, vector<function<vector<double>(vector<double>)>> manifoldMap) {
+Semiconjugacy::Semiconjugacy(HybSys dom, HybSys cod, vector<int> nodeMap, vector<function<Eigen::VectorXd(Eigen::VectorXd)>> manifoldMap) {
   this->dom = dom;
   this->cod = cod;
   this->modeMap = modeMap;
@@ -83,43 +90,43 @@ HybSys HybSys::parallel(HybSys H, HybSys K) {
 	  Reset rh = H.resets[i][k];
 	  Reset rk = K.resets[j][l];
 
-	  function<bool(vector<double>)> guard1, guard2, guard3;
-	  function<vector<double>(vector<double>)> reset1, reset2, reset3;
+	  function<bool(Eigen::VectorXd)> guard1, guard2, guard3;
+	  function<Eigen::VectorXd(Eigen::VectorXd)> reset1, reset2, reset3;
 	  
-	  guard1 = [&offset, &rh, &rk](vector<double> x) {
-	     vector<double> xh = vector<double>(x.begin(), x.begin() + offset);
-	     vector<double> xk = vector<double>(x.begin() + offset, x.end());
+	  guard1 = [&offset, &rh, &rk](Eigen::VectorXd x) {
+	     Eigen::VectorXd xh = Eigen::VectorXd(0, offset);
+	     Eigen::VectorXd xk = Eigen::VectorXd(offset, x.size());
 	     return rh.guard(xh) && !rk.guard(xk); 
 	   };
-	  reset1 = [&offset, &rh, &rk](vector<double> x) {
-	    vector<double> xh = vector<double>(x.begin(), x.begin() + offset);
-	    vector<double> xk = vector<double>(x.begin() + offset, x.end());
-	    return concat(rh.reset(xh), xk);
+	  reset1 = [&offset, &rh, &rk](Eigen::VectorXd x) {
+	    Eigen::VectorXd xh = Eigen::VectorXd(0, offset);
+	    Eigen::VectorXd xk = Eigen::VectorXd(offset, x.size());
+	    return concatE(rh.reset(xh), xk);
 	  };
 	  resets[i*n + j][k*n + j] = Reset(guard1, reset1);
 	   
 	   
-	  guard2 = [&offset, &rh, &rk](vector<double> x) {
-	    vector<double> xh = vector<double>(x.begin(), x.begin() + offset);
-	    vector<double> xk = vector<double>(x.begin() + offset, x.end());
+	  guard2 = [&offset, &rh, &rk](Eigen::VectorXd x) {
+	    Eigen::VectorXd xh = Eigen::VectorXd(0, offset);
+	    Eigen::VectorXd xk = Eigen::VectorXd(offset, x.size());
 	    return !rh.guard(xh) && rk.guard(xk);
 	  };
-	  reset2 = [&offset, &rh, &rk](vector<double> x){
-	     vector<double> xh = vector<double>(x.begin(), x.begin() + offset);
-	     vector<double> xk = vector<double>(x.begin() + offset, x.end());
-	     return concat(xh, rk.reset(xk));
+	  reset2 = [&offset, &rh, &rk](Eigen::VectorXd x){
+	     Eigen::VectorXd xh = Eigen::VectorXd(0, offset);
+	     Eigen::VectorXd xk = Eigen::VectorXd(offset, x.size());
+	     return concatE(xh, rk.reset(xk));
 	  };
 	  resets[i*n + j][i*n +l] = Reset(guard2, reset2);
 	   
-	  guard3 = [&offset, &rh, &rk](vector<double> x){
-	     vector<double> xh = vector<double>(x.begin(), x.begin() + offset);
-	     vector<double> xk = vector<double>(x.begin() + offset, x.end());
+	  guard3 = [&offset, &rh, &rk](Eigen::VectorXd x){
+	     Eigen::VectorXd xh = Eigen::VectorXd(0, offset);
+	     Eigen::VectorXd xk = Eigen::VectorXd(offset, x.size());
 	     return rh.guard(xh) && rk.guard(xk);
 	  };
-	  reset3 = [&offset, &rh, &rk](vector<double> x){
-	    vector<double> xh = vector<double>(x.begin(), x.begin() + offset);
-	    vector<double> xk = vector<double>(x.begin() + offset, x.end());
-	    return concat(rh.reset(xh), rk.reset(xk));
+	  reset3 = [&offset, &rh, &rk](Eigen::VectorXd x){
+	    Eigen::VectorXd xh = Eigen::VectorXd(0, offset);
+	    Eigen::VectorXd xk = Eigen::VectorXd(offset, x.size());
+	    return concatE(rh.reset(xh), rk.reset(xk));
 	  };
 	  resets[i*n + j][k*n + l] = Reset(guard3, reset3);
 	}
@@ -151,10 +158,10 @@ HybSys HybSys::sequential(HybSys H, HybSys K) {
 }
 
 Reset Reset::either(Reset r1, Reset r2) {
-  function<bool(vector<double>)> guard = [r1, r2](vector<double> x) {
+  function<bool(Eigen::VectorXd)> guard = [r1, r2](Eigen::VectorXd x) {
     return r1.guard(x) || r2.guard(x);
   };
-  function<vector<double>(vector<double>)> reset = [r1, r2](vector<double> x) {
+  function<Eigen::VectorXd(Eigen::VectorXd)> reset = [r1, r2](Eigen::VectorXd x) {
     if (r1.guard(x)) {
       return r1.reset(x);
     }

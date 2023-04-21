@@ -3,6 +3,10 @@
  * License: MIT  (see the file LICENSE)
  */
 
+#define EIGEN_NO_DEBUG
+#include <Eigen/Dense>
+#include <Eigen/Core>
+
 #ifndef HybSys_h
 #define HybSys_h
 #include <stdint.h>
@@ -11,12 +15,13 @@
 
 using namespace std;
 
+
 class Mode {    
  public:
   int dim;
-  function<vector<double>(vector<double>)> vectorField;
+  function<Eigen::VectorXd(Eigen::VectorXd)> vectorField;
   
-  Mode(int dim, function<vector<double>(vector<double>)> vectorField);
+  Mode(int dim, function<Eigen::VectorXd(Eigen::VectorXd)> vectorField);
   Mode();
   
   static Mode parallel(Mode M, Mode N);  
@@ -25,11 +30,11 @@ class Mode {
 
 class Reset {
  public:
-  function<bool(vector<double>)> guard;
-  function<vector<double>(vector<double>)> reset;
+  function<bool(Eigen::VectorXd)> guard;
+  function<Eigen::VectorXd(Eigen::VectorXd)> reset;
   
-  Reset(function<bool(vector<double>)> guard,
-	function<vector<double>(vector<double>)> reset);
+  Reset(function<bool(Eigen::VectorXd)> guard,
+	function<Eigen::VectorXd(Eigen::VectorXd)> reset);
 
   static Reset either(Reset r1, Reset r2);
   
@@ -56,9 +61,9 @@ class Semiconjugacy {
   public:
     HybSys dom, cod;
     vector<int> modeMap;
-    vector<function<vector<double>(vector<double>)>> manifoldMap;
+    vector<function<Eigen::VectorXd(Eigen::VectorXd)>> manifoldMap;
 
-    Semiconjugacy(HybSys dom, HybSys cod, vector<int> nodeMap, vector<function<vector<double>(vector<double>)>> manifoldMap);
+    Semiconjugacy(HybSys dom, HybSys cod, vector<int> nodeMap, vector<function<Eigen::VectorXd(Eigen::VectorXd)>> manifoldMap);
     Semiconjugacy();
 };
 
